@@ -56,48 +56,6 @@ unsigned userCoordInput(GeoPositionToNode* gp2n)
 
 }
 
-void demoPython(char* args[])
-{
-	// Load a car routing graph from OpenStreetMap-based data
-	cout << "Busy loading the map pbf..." << endl;
-	auto graph = simple_load_osm_car_routing_graph_from_pbf("yenibosna.pbf");
-
-	auto tail = invert_inverse_vector(graph.first_out);
-
-	// Build the shortest path index
-	auto ch = ContractionHierarchy::build(
-		graph.node_count(), 
-		tail, graph.head, 
-		graph.travel_time
-	);
-
-	// Build the index to quickly map latitudes and longitudes
-	GeoPositionToNode map_geo_position(graph.latitude, graph.longitude);
-	cout << "Finished loading the map!" << endl;
-	// Besides the CH itself we need a query object. 
-	ContractionHierarchyQuery ch_query(ch);
-
-	// Use the query object to answer queries from stdin to stdout
-	unsigned from, to;
-
-	cout << "For the source point:" << endl;
-	from = userCoordInput(&map_geo_position);
-	cout << "For the destination point:" << endl;
-	to = userCoordInput(&map_geo_position);
-
-	long long start_time = get_micro_time();
-	ch_query.reset().add_source(from).add_target(to).run();
-	auto distance = ch_query.get_distance();
-	auto path = ch_query.get_node_path();
-	long long end_time = get_micro_time();
-
-	cout << "To get from "<< from << " to "<< to << " one needs " << distance << " milliseconds." << endl;
-	cout << "This query was answered in " << (end_time - start_time) << " microseconds." << endl;
-	cout << "The path is";
-	for(auto x:path)
-		cout << " " << x;
-	cout << endl;
-}
 
 
 void demo_A_B()
@@ -197,5 +155,5 @@ void demo_distmat()
 }
 
 int main(){
-	demo_distmat();
+	demo_A_B();
 }
